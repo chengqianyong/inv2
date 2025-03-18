@@ -9,6 +9,7 @@ import StrategySettings from './pages/StrategySettings';
 import FeedbackHistory from './pages/FeedbackHistory';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RiskAssessment from './pages/RiskAssessment';
 
 // 导入布局组件
 import AppLayout from './components/layout';
@@ -22,9 +23,13 @@ const App: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const publicPaths = ['/login', '/register'];
+    const riskAssessment = localStorage.getItem('riskAssessment');
+    const currentPath = location.pathname;
     
-    if (!token && !publicPaths.includes(location.pathname)) {
+    if (!token && !publicPaths.includes(currentPath)) {
       navigate('/login');
+    } else if (token && !riskAssessment && !['/risk-assessment', '/login', '/register'].includes(currentPath)) {
+      navigate('/risk-assessment');
     }
   }, [location.pathname, navigate]);
 
@@ -32,6 +37,7 @@ const App: React.FC = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/risk-assessment" element={<RiskAssessment />} />
       <Route path="/" element={<AppLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="stocks" element={<StockList />} />

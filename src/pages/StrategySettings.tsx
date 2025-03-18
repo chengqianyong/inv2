@@ -41,12 +41,62 @@ const StrategySettings: React.FC = () => {
   };
 
   // 保存策略设置
-  const handleSaveStrategy = () => {
-    form.validateFields().then(values => {
-      message.success('策略设置已保存');
-    }).catch(error => {
-      message.error('请检查表单填写是否正确');
-    });
+  // 市场状态类型定义
+  type MarketState = 'bull' | 'bear' | 'neutral';
+  
+  // 市场状态判断函数
+  const determineMarketState = (marketData: any): MarketState => {
+    const {
+      trendPeriod,
+      volumeChangeThreshold,
+      marketSentimentThreshold,
+      priceData,
+      volumeData,
+      marketSentiment
+    } = marketData;
+  
+    // 计算价格趋势
+    const priceChange = ((priceData[priceData.length - 1] - priceData[0]) / priceData[0]) * 100;
+    
+    // 计算成交量变化
+    const volumeChange = ((volumeData[volumeData.length - 1] - volumeData[0]) / volumeData[0]) * 100;
+    
+    // 综合判断市场状态
+    if (priceChange > 10 && volumeChange > volumeChangeThreshold && marketSentiment > marketSentimentThreshold) {
+      return 'bull';
+    } else if (priceChange < -10 && volumeChange > volumeChangeThreshold && marketSentiment < 30) {
+      return 'bear';
+    } else {
+      return 'neutral';
+    }
+  };
+  
+  // 自动调整策略参数
+  const adjustStrategyParams = (currentParams: any, marketState: MarketState) => {
+    const adjustedParams = { ...currentParams };
+  
+    switch (marketState) {
+      case 'bull':
+        adjustedParams.stopLoss = currentParams.bull_stop_loss;
+        adjustedParams.takeProfit = currentParams.bull_take_profit;
+        adjustedParams.positionSize = currentParams.bull_position_size;
+        adjustedParams.signalConfirmation = Math.max(1, currentParams.signal_confirmation - 1);
+        break;
+      case 'bear':
+        adjustedParams.stopLoss = currentParams.bear_stop_loss;
+        adjustedParams.takeProfit = currentParams.bear_take_profit;
+        adjustedParams.positionSize = currentParams.bear_position_size;
+        adjustedParams.signalConfirmation = currentParams.signal_confirmation + 1;
+        break;
+      default:
+        // 中性市场使用默认参数
+        adjustedParams.stopLoss = (currentParams.bull_stop_loss + currentParams.bear_stop_loss) / 2;
+        adjustedParams.takeProfit = (currentParams.bull_take_profit + currentParams.bear_take_profit) / 2;
+        adjustedParams.positionSize = (currentParams.bull_position_size + currentParams.bear_position_size) / 2;
+        adjustedParams.signalConfirmation = currentParams.signal_confirmation;
+    }
+  
+    return adjustedParams;
   };
 
   const renderStrategyForm = () => {
@@ -54,6 +104,44 @@ const StrategySettings: React.FC = () => {
       case 1: // 趋势跟踪策略
         return (
           <>
+            <Divider orientation="left">市场状态判断</Divider>
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="market_trend_period"
+                  label="趋势判断周期"
+                  rules={[{ required: true, message: '请选择趋势判断周期' }]}
+                >
+                  <Select
+                    options={[
+                      { value: '20', label: '20日' },
+                      { value: '30', label: '30日' },
+                      { value: '60', label: '60日' },
+                      { value: '120', label: '120日' },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="volume_change_threshold"
+                  label="成交量变化阈值"
+                  rules={[{ required: true, message: '请设置成交量变化阈值' }]}
+                >
+                  <InputNumber min={1.0} max={3.0} step={0.1} />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="market_sentiment_threshold"
+                  label="市场情绪阈值"
+                  rules={[{ required: true, message: '请设置市场情绪阈值' }]}
+                >
+                  <InputNumber min={0} max={100} />
+                </Form.Item>
+              </Col>
+            </Row>
+
             <Divider orientation="left">基本参数</Divider>
             <Row gutter={16}>
               <Col span={8}>
@@ -133,32 +221,71 @@ const StrategySettings: React.FC = () => {
 
             <Divider orientation="left">风险控制</Divider>
             <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item
-                  name="stop_loss"
-                  label="止损比例"
-                  rules={[{ required: true, message: '请设置止损比例' }]}
-                >
-                  <InputNumber min={0.01} max={0.1} step={0.01} />
-                </Form.Item>
+              <Col span={12}>
+                <Card title="牛市参数" size="small" bordered={false}>
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Form.Item
+                        name="bull_stop_loss"
+                        label="止损比例"
+                        rules={[{ required: true, message: '请设置止损比例' }]}
+                      >
+                        <InputNumber min={0.02} max={0.15} step={0.01} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name="bull_take_profit"
+                        label="止盈比例"
+                        rules={[{ required: true, message: '请设置止盈比例' }]}
+                      >
+                        <InputNumber min={0.05} max={0.5} step={0.01} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name="bull_position_size"
+                        label="仓位比例"
+                        rules={[{ required: true, message: '请设置仓位比例' }]}
+                      >
+                        <InputNumber min={0.3} max={1} step={0.1} />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Card>
               </Col>
-              <Col span={8}>
-                <Form.Item
-                  name="take_profit"
-                  label="止盈比例"
-                  rules={[{ required: true, message: '请设置止盈比例' }]}
-                >
-                  <InputNumber min={0.02} max={0.5} step={0.01} />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  name="position_size"
-                  label="仓位比例"
-                  rules={[{ required: true, message: '请设置仓位比例' }]}
-                >
-                  <InputNumber min={0.1} max={1} step={0.1} />
-                </Form.Item>
+              <Col span={12}>
+                <Card title="熊市参数" size="small" bordered={false}>
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Form.Item
+                        name="bear_stop_loss"
+                        label="止损比例"
+                        rules={[{ required: true, message: '请设置止损比例' }]}
+                      >
+                        <InputNumber min={0.01} max={0.1} step={0.01} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name="bear_take_profit"
+                        label="止盈比例"
+                        rules={[{ required: true, message: '请设置止盈比例' }]}
+                      >
+                        <InputNumber min={0.02} max={0.3} step={0.01} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name="bear_position_size"
+                        label="仓位比例"
+                        rules={[{ required: true, message: '请设置仓位比例' }]}
+                      >
+                        <InputNumber min={0.1} max={0.5} step={0.1} />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Card>
               </Col>
             </Row>
           </>
@@ -632,3 +759,44 @@ const StrategySettings: React.FC = () => {
 };
 
 export default StrategySettings;
+
+// 修改保存策略设置函数
+const handleSaveStrategy = () => {
+  form.validateFields().then(values => {
+    // 模拟获取市场数据
+    const mockMarketData = {
+      trendPeriod: parseInt(values.market_trend_period),
+      volumeChangeThreshold: values.volume_change_threshold,
+      marketSentimentThreshold: values.market_sentiment_threshold,
+      priceData: [100, 105, 110, 108, 115], // 模拟价格数据
+      volumeData: [1000, 1200, 1500, 1300, 1600], // 模拟成交量数据
+      marketSentiment: 65 // 模拟市场情绪指标
+    };
+
+    // 判断市场状态
+    const marketState = determineMarketState(mockMarketData);
+
+    // 自动调整策略参数
+    const adjustedParams = adjustStrategyParams(values, marketState);
+
+    // 更新策略参数
+    const updatedStrategy = {
+      ...currentStrategy,
+      params: adjustedParams
+    };
+
+    // 更新策略列表
+    const updatedStrategies = strategies.map(strategy => {
+      if (strategy.id === currentStrategy.id) {
+        return updatedStrategy;
+      }
+      return strategy;
+    });
+
+    setStrategies(updatedStrategies);
+    setCurrentStrategy(updatedStrategy);
+    message.success(`策略设置已保存，当前市场状态：${marketState === 'bull' ? '牛市' : marketState === 'bear' ? '熊市' : '中性市场'}`);
+  }).catch(error => {
+    message.error('请检查表单填写是否正确');
+  });
+};

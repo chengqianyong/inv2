@@ -4,19 +4,22 @@ import { SyncOutlined, FilterOutlined, LikeOutlined, DislikeOutlined, QuestionOu
 import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
 
+import { mockStockPrices } from '../mock/mockStockPrices';
+
 // 模拟数据 - 实际应用中应从API获取
 const mockTradeHistory = [
-  { id: 1, stock: '贵州茅台', code: '600519', action: '买入', price: 1800.50, amount: 10, total: 18005.00, date: '2023-08-15 10:30:45', strategy: '趋势跟踪', feedback: '正向', reason: '价格突破前期高点，成交量放大' },
-  { id: 2, stock: '腾讯控股', code: '00700', action: '卖出', price: 320.80, amount: 50, total: 16040.00, date: '2023-08-14 14:22:33', strategy: '反转策略', feedback: '中立', reason: '价格接近阻力位，技术指标超买' },
-  { id: 3, stock: '阿里巴巴', code: '09988', action: '买入', price: 85.60, amount: 100, total: 8560.00, date: '2023-08-13 09:45:12', strategy: '价值投资', feedback: '正向', reason: '基本面良好，估值处于历史低位' },
-  { id: 4, stock: '比亚迪', code: '002594', action: '卖出', price: 240.30, amount: 20, total: 4806.00, date: '2023-08-12 15:10:28', strategy: '动量策略', feedback: '负向', reason: '价格跌破支撑位，成交量萎缩' },
-  { id: 5, stock: '宁德时代', code: '300750', action: '买入', price: 198.45, amount: 30, total: 5953.50, date: '2023-08-11 11:05:36', strategy: '均值回归', feedback: '正向', reason: '价格回调至均线支撑位' },
-  { id: 6, stock: '招商银行', code: '600036', action: '买入', price: 35.20, amount: 200, total: 7040.00, date: '2023-08-10 13:40:22', strategy: '价值投资', feedback: '正向', reason: '股息率高，估值合理' },
-  { id: 7, stock: '美团', code: '03690', action: '卖出', price: 125.80, amount: 40, total: 5032.00, date: '2023-08-09 10:15:48', strategy: '趋势跟踪', feedback: '负向', reason: '价格跌破趋势线，成交量放大' },
-  { id: 8, stock: '中国平安', code: '601318', action: '买入', price: 48.65, amount: 100, total: 4865.00, date: '2023-08-08 14:30:55', strategy: '价值投资', feedback: '中立', reason: '基本面稳定，估值处于中位' },
-  { id: 9, stock: '京东集团', code: '09618', action: '买入', price: 125.40, amount: 30, total: 3762.00, date: '2023-08-07 09:50:33', strategy: '动量策略', feedback: null, reason: '价格突破阻力位，成交量放大' },
-  { id: 10, stock: '中国移动', code: '00941', action: '卖出', price: 65.25, amount: 150, total: 9787.50, date: '2023-08-06 11:25:18', strategy: '均值回归', feedback: null, reason: '价格超过均线上轨' },
+  { id: 1, stock: '贵州茅台', code: '600519', action: '买入', price: mockStockPrices['600519']['2023-08-15'], amount: 10, total: mockStockPrices['600519']['2023-08-15'] * 10, date: '2023-08-15 10:30:45', strategy: '趋势跟踪', feedback: '正向', reason: '价格突破前期高点，成交量放大' },
+  { id: 2, stock: '腾讯控股', code: '00700', action: '卖出', price: mockStockPrices['00700']['2023-08-14'], amount: 50, total: mockStockPrices['00700']['2023-08-14'] * 50, date: '2023-08-14 14:22:33', strategy: '反转策略', feedback: '中立', reason: '价格接近阻力位，技术指标超买' },
+  { id: 3, stock: '阿里巴巴', code: '09988', action: '买入', price: mockStockPrices['09988']['2023-08-13'], amount: 100, total: mockStockPrices['09988']['2023-08-13'] * 100, date: '2023-08-13 09:45:12', strategy: '价值投资', feedback: '正向', reason: '基本面良好，估值处于历史低位' },
+  { id: 4, stock: '比亚迪', code: '002594', action: '卖出', price: mockStockPrices['002594']['2023-08-12'], amount: 20, total: mockStockPrices['002594']['2023-08-12'] * 20, date: '2023-08-12 15:10:28', strategy: '动量策略', feedback: '负向', reason: '价格跌破支撑位，成交量萎缩' },
+  { id: 5, stock: '宁德时代', code: '300750', action: '买入', price: mockStockPrices['300750']['2023-08-11'], amount: 30, total: mockStockPrices['300750']['2023-08-11'] * 30, date: '2023-08-11 11:05:36', strategy: '均值回归', feedback: '正向', reason: '价格回调至均线支撑位' },
+  { id: 6, stock: '招商银行', code: '600036', action: '买入', price: mockStockPrices['600036']['2023-08-10'], amount: 200, total: mockStockPrices['600036']['2023-08-10'] * 200, date: '2023-08-10 13:40:22', strategy: '价值投资', feedback: '正向', reason: '股息率高，估值合理' },
+  { id: 7, stock: '美团', code: '03690', action: '卖出', price: mockStockPrices['03690']['2023-08-09'], amount: 40, total: mockStockPrices['03690']['2023-08-09'] * 40, date: '2023-08-09 10:15:48', strategy: '趋势跟踪', feedback: '负向', reason: '价格跌破趋势线，成交量放大' },
+  { id: 8, stock: '中国平安', code: '601318', action: '买入', price: mockStockPrices['601318']['2023-08-08'], amount: 100, total: mockStockPrices['601318']['2023-08-08'] * 100, date: '2023-08-08 14:30:55', strategy: '价值投资', feedback: '中立', reason: '基本面稳定，估值处于中位' },
+  { id: 9, stock: '京东集团', code: '09618', action: '买入', price: mockStockPrices['09618']['2023-08-07'], amount: 30, total: mockStockPrices['09618']['2023-08-07'] * 30, date: '2023-08-07 09:50:33', strategy: '动量策略', feedback: null, reason: '价格突破阻力位，成交量放大' },
+  { id: 10, stock: '中国移动', code: '00941', action: '卖出', price: mockStockPrices['00941']['2023-08-06'], amount: 150, total: mockStockPrices['00941']['2023-08-06'] * 150, date: '2023-08-06 11:25:18', strategy: '均值回归', feedback: null, reason: '价格超过均线上轨' },
 ];
+
 
 const { RangePicker } = DatePicker;
 

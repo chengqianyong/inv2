@@ -32,7 +32,14 @@ const Login: React.FC = () => {
           role: user ? 'user' : 'admin'
         }));
         localStorage.setItem('token', 'mock-token');
-        navigate('/');
+        
+        // 检查是否已完成风险评估
+        const riskAssessment = localStorage.getItem('riskAssessment');
+        if (!riskAssessment) {
+          navigate('/risk-assessment');
+        } else {
+          navigate('/');
+        }
       } else {
         message.error('用户名或密码错误');
       }
