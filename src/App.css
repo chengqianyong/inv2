@@ -1,0 +1,76 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background: #001529;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.app-logo {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.app-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.card-container {
+  margin-bottom: 24px;
+}
+
+.dashboard-card {
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dashboard-card .ant-card-head {
+  background: #fafafa;
+}
+
+.stock-table .positive {
+  color: #52c41a;
+}
+
+.stock-table .negative {
+  color: #f5222d;
+}
+
+.feedback-tag-positive {
+  background-color: #f6ffed;
+  border-color: #b7eb8f;
+  color: #52c41a;
+}
+
+.feedback-tag-neutral {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+  color: #1890ff;
+}
+
+.feedback-tag-negative {
+  background-color: #fff1f0;
+  border-color: #ffa39e;
+  color: #f5222d;
+}
+
+.strategy-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.chart-container {
+  height: 300px;
+  width: 100%;
+}
